@@ -1,18 +1,23 @@
 /softhand_grasp_node:
    ros__parameters:
-      'bend_angle_array': [200.0, 90.0, 90.0, 90.0, 200.0]  #in degrees, range:[0, 300]
-      'wave_angle_array': [0.0, 0.0, 0.0, 0.0, 0.0]   # range:[-150, 150]
+      'bend_angle_array': [24.7, 261.0, 29.0, 29.0, 261.0]  #in degrees, range:[0, 300]
+      'wave_angle_array': [1.6, 5.0, 3.5, 7.8, 1.7]   # range:[-150, 150]
       
       
 /softhand_fingers_move2points_node:
    ros__parameters:
-      'bend_angle_array_point0': [0.0, 0.0, 0.0, 0.0, 0.0]  #in degrees, range:[0, 300]
-      'bend_angle_array_point1': [150.0, 200.0, 200.0, 200.0, 200.0]
-      'wave_angle_array_point0': [0.0, 0.0, 0.0, 0.0, 0.0]   # range:[-150, 150]
-      'wave_angle_array_point1': [90.0, 90.0, 90.0, 90.0, 90.0]
-      'wave_angle_array_point2': [-90.0, -90.0, -90.0, -90.0, -90.0]
+      'bend_angle_array_point0': [50.0, 64.0, 242.0, 55.0, 66.0]  #grasp in degrees, range:[0, 300]
+#      'bend_angle_array_point0': [70.0, 70.0, 240.0, 60.0, 70.0]
+      'bend_angle_array_point1': [150.0, 150.0, 165.0, 135.0, 155.0]    #rotate
+#     'bend_angle_array_point1': [140.0, 104.0, 195.0, 100.0, 110.0]    #grasp 
+      'wave_angle_array_point0': [0.0, 5.0, 3.5, 7.8, 1.7]   # range:[-150, 150]
+      'wave_angle_array_point1': [-20.0, 65.0, 63.5, 67.8, 61.7]
+      'wave_angle_array_point2': [15.0, -55.0, -56.5, -52.2, -59.3]
+#      'wave_angle_array_point0': [0.0, 0.0, 0.0, 0.0, 0.0]   # range:[-150, 150]
+#      'wave_angle_array_point1': [90.0, 90.0, 90.0, 90.0, 90.0]
+#      'wave_angle_array_point2': [-90.0, -90.0, -90.0, -90.0, -90.0]
       
 /softhand_setspeed_clientnode:
    ros__parameters:
       'bend_speed_array': [30.0, 30.0, 30.0, 30.0, 30.0]  #in degrees/sec, range:[0-684]
-      'wave_speed_array': [15.0, 15.0, 15.0, 15.0, 15.0]   
+      'wave_speed_array': [15.0, 15.0, 15.0, 15.0, 15.0]  

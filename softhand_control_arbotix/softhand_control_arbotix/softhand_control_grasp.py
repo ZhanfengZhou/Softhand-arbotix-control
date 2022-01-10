@@ -24,7 +24,7 @@ class Softhand_Publisher(Node):
         self.publisher_array = [self.publisher1_, self.publisher2_, self.publisher3_, self.publisher4_,
                     self.publisher5_, self.publisher6_, self.publisher7_, self.publisher8_,
                     self.publisher9_, self.publisher10_]
-        timer_period = 5  # seconds
+        timer_period = 10  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
         self.declare_parameter('bend_angle_array')    #in degrees
