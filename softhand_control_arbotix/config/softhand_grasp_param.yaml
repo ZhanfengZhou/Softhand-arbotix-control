@@ -1,9 +1,23 @@
 /softhand_grasp_node:
    ros__parameters:
-      'bend_angle_array': [24.7, 261.0, 29.0, 29.0, 261.0]  #in degrees, range:[0, 300]
-      'wave_angle_array': [1.6, 5.0, 3.5, 7.8, 1.7]   # range:[-150, 150]
-      
-      
+      'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  #in degrees, range:[0, 300]
+      'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]
+      #'bend_angle_array_point1': [128.0, 111.0, 200.0, 105.0, 131.0]    # tennis ball
+      #'bend_angle_array_point1': [123.0, 106.0, 205.0, 100.0, 126.0]    # orange
+      #'bend_angle_array_point1': [128.0, 111.0, 200.0, 95.0, 100.0]    # pear
+      #'bend_angle_array_point1': [118.0, 101.0, 210.0, 95.0, 121.0]    # apple
+      #'bend_angle_array_point1': [148.0, 131.0, 180.0, 105.0, 131.0]    # small glass bottle
+      #'bend_angle_array_point1': [162.0, 151.0, 160.0, 115.0, 131.0]    # banana, tilt,false
+      #'bend_angle_array_point1': [148.0, 141.0, 170.0, 35.0, 41.0]    # two fruits
+      #'bend_angle_array_point2': [148.0, 141.0, 170.0, 160.0, 206.0]
+      'bend_angle_array_point1': [158.0, 151.0, 190.0, 35.0, 41.0]    # two grass bottles
+      'bend_angle_array_point2': [158.0, 151.0, 190.0, 180.0, 226.0]
+      #'bend_angle_array_point1': [148.0, 131.0, 180.0, 125.0, 151.0]
+      'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]    
+
+
+
+
 /softhand_fingers_move2points_node:
    ros__parameters:
       'bend_angle_array_point0': [50.0, 64.0, 242.0, 55.0, 66.0]  #grasp in degrees, range:[0, 300]
