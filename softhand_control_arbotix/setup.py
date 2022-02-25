@@ -27,6 +27,7 @@ setup(
             'softhand_grasp = softhand_control_arbotix.softhand_control_grasp:main',
             'softhand_fingers_move2points = softhand_control_arbotix.softhand_fingers_move2points:main',
             'softhand_setspeed = softhand_control_arbotix.softhand_setspeed_servicecall:main',
+            'softhand_grasp_multiobjects = softhand_control_arbotix.softhand_control_grasp_multiobjects:main',
         ],
     },
 )

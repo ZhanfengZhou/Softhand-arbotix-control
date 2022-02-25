@@ -1,4 +1,4 @@
-/softhand_grasp_node:
+/softhand_grasp_multiobjects_node:
    ros__parameters:
       'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  #in degrees, range:[0, 300]
       'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]
@@ -8,12 +8,11 @@
       #'bend_angle_array_point1': [118.0, 101.0, 210.0, 95.0, 121.0]    # apple
       #'bend_angle_array_point1': [148.0, 131.0, 180.0, 105.0, 131.0]    # small glass bottle
       #'bend_angle_array_point1': [162.0, 151.0, 160.0, 115.0, 131.0]    # banana, tilt,false
-      #'bend_angle_array_point1': [128.0, 111.0, 200.0, 105.0, 131.0]    # peach
-      #'bend_angle_array_point1': [148.0, 131.0, 180.0, 105.0, 131.0]    # lemon
-      #'bend_angle_array_point1': [158.0, 136.0, 175.0, 105.0, 131.0]    # plum
-      #'bend_angle_array_point1': [165.0, 151.0, 162.0, 105.0, 131.0]     # chips can
-      #'bend_angle_array_point1': [195.0, 190.0, 138.0, 155.0, 141.0]     #Jello chocolate, strawberry
-      'bend_angle_array_point1': [195.0, 190.0, 138.0, 155.0, 141.0]     #both Jello fail
+      #'bend_angle_array_point1': [148.0, 141.0, 170.0, 35.0, 41.0]    # two fruits
+      #'bend_angle_array_point2': [148.0, 141.0, 170.0, 160.0, 206.0]
+      'bend_angle_array_point1': [158.0, 151.0, 190.0, 35.0, 41.0]    # two grass bottles
+      'bend_angle_array_point2': [158.0, 151.0, 190.0, 180.0, 226.0]
+      #'bend_angle_array_point1': [148.0, 131.0, 180.0, 125.0, 151.0]
       'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]    
 
 
