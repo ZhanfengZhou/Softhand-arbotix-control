@@ -1,0 +1,21 @@
+/softhand_grasp_lateral_spraying_node:
+   ros__parameters:
+      'grasp_time1': 34    
+      'grasp_time2': 10
+      #'grasp_time1': 5    
+      #'grasp_time2': 5
+      'release_time1': 4
+      'release_time2': 8
+      
+      'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     #grasp in degrees, range:[0, 300]
+      'bend_angle_array_point1': [180.0, 41.0, 270.0, 150.0, 150.0]    #rotate 
+      'bend_angle_array_point2': [180.0, 170.0, 155.0, 150.0, 150.0]    #
+      'wave_angle_array_point0': [40.0, 4.35, 2.8, 32.0, 10.0]      #rotate angle, range:[-150, 150]
+      'wave_angle_array_point1': [40.0, 4.35, 2.8, 32.0, 10.0]
+      
+
+
+/softhand_setspeed_clientnode:
+   ros__parameters:
+      'bend_speed_array': [25.0, 25.0, 25.0, 25.0, 25.0]  #in degrees/sec, range:[0-684]
+      'wave_speed_array': [15.0, 15.0, 15.0, 15.0, 10.0]  

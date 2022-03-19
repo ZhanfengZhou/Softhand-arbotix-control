@@ -12,7 +12,7 @@ def generate_launch_description():
     config = os.path.join(
       get_package_share_directory('softhand_control_arbotix'),
       'config',
-      'softhand_grasp_param.yaml'
+      'softhand_grasp_rotate_param.yaml'
       )
     
     return LaunchDescription([
@@ -28,8 +28,8 @@ def generate_launch_description():
     
         Node(
             package='softhand_control_arbotix',
-            executable='softhand_fingers_move2points',
-            name='softhand_fingers_move2points_node',
+            executable='softhand_grasp_rotate',
+            name='softhand_grasp_rotate_node',
             output='screen',
             emulate_tty=True,
             parameters=[config]

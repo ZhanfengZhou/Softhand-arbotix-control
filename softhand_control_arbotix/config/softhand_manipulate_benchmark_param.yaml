@@ -1,0 +1,73 @@
+/softhand_manipulate_benchmark_node:
+   ros__parameters:
+      'grasp_time1': 5    
+      'grasp_time2': 20
+      'grasp_time3': 6
+      'grasp_time4': 8
+      
+      # x-translation
+      #'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     #grasp in degrees, range:[0, 300]
+      #'bend_angle_array_point1': [118.0, 91.0, 220.0, 90.0, 81.0]    #
+      #'bend_angle_array_point2': [218.0, 156.0, 170.0, 120.0, 105.0]    #
+      #'bend_angle_array_point3': [122.0, 101.0, 210.0, 95.0, 81.0]    #
+      #'wave_angle_array_point0': [40.0, 4.35, 2.8, 26.0, 10.0]      #rotate angle, range:[-150, 150]
+      #'wave_angle_array_point1': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point2': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point3': [40.0, 4.35, 2.8, 26.0, 10.0]
+      
+      # y-rotation
+      #'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     #grasp in degrees, range:[0, 300]
+      #'bend_angle_array_point1': [128.0, 91.0, 220.0, 90.0, 81.0]    #
+      #'bend_angle_array_point2': [128.0, 156.0, 170.0, 140.0, 115.0]    #
+      #'bend_angle_array_point3': [128.0, 101.0, 210.0, 100.0, 81.0]    #
+      #'wave_angle_array_point0': [40.0, 4.35, 2.8, 26.0, 10.0]      #rotate angle, range:[-150, 150]
+      #'wave_angle_array_point1': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point2': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point3': [40.0, 4.35, 2.8, 26.0, 10.0]
+      
+      # z-translation
+      #'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     #grasp in degrees, range:[0, 300]
+      #'bend_angle_array_point1': [130.0, 106.0, 210.0, 98.0, 81.0]    #
+      #'bend_angle_array_point2': [188.0, 81.0, 240.0, 75.0, 61.0]    #
+      #'bend_angle_array_point3': [128.0, 156.0, 170.0, 140.0, 115.0]    #
+      #'wave_angle_array_point0': [40.0, 4.35, 2.8, 26.0, 10.0]      #rotate angle, range:[-150, 150]
+      #'wave_angle_array_point1': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point2': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point3': [40.0, 4.35, 2.8, 26.0, 10.0]
+      
+      # x-rotation
+      #'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     #grasp in degrees, range:[0, 300]
+      #'bend_angle_array_point1': [130.0, 106.0, 210.0, 105.0, 120.0]
+      #'bend_angle_array_point2': [130.0, 126.0, 210.0, 95.0, 100.0]
+      #'bend_angle_array_point3': [130.0, 90.0, 210.0, 125.0, 160.0]
+      #'wave_angle_array_point0': [40.0, 4.35, 2.8, 26.0, 10.0]      #rotate angle, range:[-150, 150]
+      #'wave_angle_array_point1': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point2': [145.0, -85.0, -110.0, -65.0, -85.0]
+      #'wave_angle_array_point3': [-20.0, 60.0, 70.0, 86.0, 70.0]
+      
+      # y-translation
+      #'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     #grasp in degrees, range:[0, 300]
+      #'bend_angle_array_point1': [130.0, 106.0, 210.0, 105.0, 120.0]
+      #'bend_angle_array_point2': [130.0, 106.0, 210.0, 105.0, 120.0]
+      #'bend_angle_array_point3': [130.0, 106.0, 210.0, 105.0, 120.0]
+      #'wave_angle_array_point0': [40.0, 4.35, 2.8, 26.0, 10.0]      #rotate angle, range:[-150, 150]
+      #'wave_angle_array_point1': [40.0, 4.35, 2.8, 26.0, 10.0]
+      #'wave_angle_array_point2': [-40.0, -55.0, -80.0, -140.0, -150.0]
+      #'wave_angle_array_point3': [145.0, 70.0, 80.0, 96.0, 90.0]
+      
+      # z-rotation
+      'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     #grasp in degrees, range:[0, 300]
+      'bend_angle_array_point1': [160.0, 86.0, 230.0, 85.0, 100.0]
+      'bend_angle_array_point2': [160.0, 86.0, 230.0, 135.0, 135.0]
+      'bend_angle_array_point3': [160.0, 140.0, 195.0, 85.0, 100.0]
+      'wave_angle_array_point0': [40.0, 4.35, 2.8, 32.0, 10.0]      #rotate angle, range:[-150, 150]
+      'wave_angle_array_point1': [40.0, 4.35, 2.8, 32.0, 10.0]
+      'wave_angle_array_point2': [-10.0, 4.35, 2.8, 45.0, 25.0]
+      'wave_angle_array_point3': [85.0, -10.0, -15.0, 35.0, 10.0]
+      
+      
+
+/softhand_setspeed_clientnode:
+   ros__parameters:
+      'bend_speed_array': [28.0, 10.0, 10.0, 10.0, 10.0]  #in degrees/sec, range:[0-684]
+      'wave_speed_array': [15.0, 15.0, 15.0, 25.0, 25.0]  

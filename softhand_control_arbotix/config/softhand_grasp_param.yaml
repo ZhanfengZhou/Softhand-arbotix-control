@@ -1,5 +1,8 @@
 /softhand_grasp_node:
    ros__parameters:
+      'grasp_time': 26
+      'release_time': 22
+      
       'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  #in degrees, range:[0, 300]
       'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]
       #'bend_angle_array_point1': [128.0, 111.0, 200.0, 105.0, 131.0]    # tennis ball
@@ -16,7 +19,20 @@
       'bend_angle_array_point1': [195.0, 190.0, 138.0, 155.0, 141.0]     #both Jello fail
       'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]    
 
-
+/softhand_grasp_lateral_node:
+   ros__parameters:
+      'grasp_time': 47
+      'release_time': 31
+      
+      'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  #in degrees, range:[0, 300]
+      'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]
+      #'bend_angle_array_point1': [195.0, 190.0, 140.0, 160.0, 191.0]     #wine_bottle
+      #'bend_angle_array_point1': [190.0, 150.0, 180.0, 160.0, 171.0]     # chips_can
+      #'bend_angle_array_point1': [200.0, 210.0, 110.0, 195.0, 220.0]     #mustard
+      #'bend_angle_array_point1': [190.0, 190.0, 140.0, 160.0, 180.0]     #tomato_soup_can
+      #'bend_angle_array_point1': [195.0, 190.0, 140.0, 160.0, 180.0]     #coke_can, glass_bottle
+      'bend_angle_array_point1': [200.0, 200.0, 130.0, 170.0, 180.0]     #glass_bottle_with_water
+      'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]    
 
 
 /softhand_fingers_move2points_node:
@@ -34,5 +50,5 @@
       
 /softhand_setspeed_clientnode:
    ros__parameters:
-      'bend_speed_array': [30.0, 30.0, 30.0, 30.0, 30.0]  #in degrees/sec, range:[0-684]
+      'bend_speed_array': [32.0, 32.0, 32.0, 32.0, 32.0]  #in degrees/sec, range:[0-684]
       'wave_speed_array': [15.0, 15.0, 15.0, 15.0, 15.0]  

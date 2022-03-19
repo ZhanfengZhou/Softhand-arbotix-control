@@ -27,9 +27,11 @@ class Softhand_Publisher(Node):
         
         self.declare_parameter('bend_angle_array_point0')    #in degrees
         self.declare_parameter('bend_angle_array_point1')
-        self.declare_parameter('bend_angle_array_point2')
         self.declare_parameter('wave_angle_array_point0')
         self.declare_parameter('wave_angle_array_point1')
+        self.declare_parameter('wave_angle_array_point2')
+        self.declare_parameter('wave_angle_array_point3')
+        self.declare_parameter('wave_angle_array_point4')
         self.declare_parameter('grasp_time1') 
         self.declare_parameter('grasp_time2') 
         self.declare_parameter('release_time1') 
@@ -47,15 +49,19 @@ class Softhand_Publisher(Node):
         
         self.bend_angle_array_point0 = self.get_parameter('bend_angle_array_point0').value
         self.bend_angle_array_point1 = self.get_parameter('bend_angle_array_point1').value
-        self.bend_angle_array_point2 = self.get_parameter('bend_angle_array_point2').value
         self.wave_angle_array_point0 = self.get_parameter('wave_angle_array_point0').value
         self.wave_angle_array_point1 = self.get_parameter('wave_angle_array_point1').value
+        self.wave_angle_array_point2 = self.get_parameter('wave_angle_array_point2').value
+        self.wave_angle_array_point3 = self.get_parameter('wave_angle_array_point3').value
+        self.wave_angle_array_point4 = self.get_parameter('wave_angle_array_point4').value
         
         self.bend_angle_array_r_point0 = self.process_angle_param(self.bend_angle_array_point0, 'bend')
         self.bend_angle_array_r_point1 = self.process_angle_param(self.bend_angle_array_point1, 'bend')
-        self.bend_angle_array_r_point2 = self.process_angle_param(self.bend_angle_array_point2, 'bend')
         self.wave_angle_array_r_point0 = self.process_angle_param(self.wave_angle_array_point0, 'wave')
         self.wave_angle_array_r_point1 = self.process_angle_param(self.wave_angle_array_point1, 'wave')
+        self.wave_angle_array_r_point2 = self.process_angle_param(self.wave_angle_array_point2, 'wave')
+        self.wave_angle_array_r_point3 = self.process_angle_param(self.wave_angle_array_point3, 'wave')
+        self.wave_angle_array_r_point4 = self.process_angle_param(self.wave_angle_array_point4, 'wave')
         
         #step 1: 
         self.get_logger().info('Moving soft hand! initializing ... \n ... ... \n ... ...')
@@ -64,34 +70,44 @@ class Softhand_Publisher(Node):
         self.publishing_bend_angle(self.bend_angle_array_r_point0)
         self.publishing_wave_angle(self.wave_angle_array_r_point0)
         
+        
         time.sleep(self.grasp_time1)
         #step 2:
         self.get_logger().info('Fingers moving to second point... ...')
-        self.publishing_bend_angle(self.bend_angle_array_r_point1)
-        
-        
-        time.sleep(self.grasp_time2)
-        #step 3:
-        self.get_logger().info('Fingers moving to third point... ...')
         self.publishing_wave_angle(self.wave_angle_array_r_point1)
-        self.publishing_bend_angle(self.bend_angle_array_r_point2)
         
         
         time.sleep(self.release_time1)
+        #step 3:
+        self.get_logger().info('Fingers moving to second point... ...')
+        self.publishing_wave_angle(self.wave_angle_array_r_point2)
+        
+        time.sleep(self.release_time1)
+        self.get_logger().info('Fingers moving to second point... ...')
+        self.publishing_wave_angle(self.wave_angle_array_r_point3)
+       
+        
+        time.sleep(self.release_time1)
+        self.get_logger().info('Fingers moving to second point... ...')
+        self.publishing_wave_angle(self.wave_angle_array_r_point1)
+        
+        
+        time.sleep(self.grasp_time2)
         #step 4:
-        self.get_logger().info('Fingers moving back to second point... ...')
+        self.get_logger().info('Fingers moving to second point... ...')
         self.publishing_bend_angle(self.bend_angle_array_r_point1)
         
-        
         #step 5:
-        timer_period = self.release_time2
+        timer_period = self.release_time2  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
     def timer_callback(self):
-
+        
+        #step 3.1:
+        self.get_logger().info('Fingers moving to fifth point... ...')
         self.publishing_bend_angle(self.bend_angle_array_r_point0)
-        self.publishing_wave_angle(self.wave_angle_array_r_point0)
-        self.get_logger().info('Fingers moving back to original point... ...')
+        self.publishing_wave_angle(self.wave_angle_array_r_point1)
+
 
         
     def process_angle_param(self, angle_array, move_types):

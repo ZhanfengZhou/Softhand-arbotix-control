@@ -29,12 +29,17 @@ class Softhand_Publisher(Node):
         self.declare_parameter('bend_angle_array_point1')
         self.declare_parameter('wave_angle_array_point0')
         self.declare_parameter('wave_angle_array_point1')
+        self.declare_parameter('grasp_time') 
+        self.declare_parameter('release_time') 
         
         self.publish_motors_angle_steps()
         
     def publish_motors_angle_steps(self):
     
         # get and process parameter:
+        self.grasp_time = self.get_parameter('grasp_time').value
+        self.release_time = self.get_parameter('release_time').value
+        
         self.bend_angle_array_point0 = self.get_parameter('bend_angle_array_point0').value
         self.bend_angle_array_point1 = self.get_parameter('bend_angle_array_point1').value
         self.wave_angle_array_point0 = self.get_parameter('wave_angle_array_point0').value
@@ -52,7 +57,8 @@ class Softhand_Publisher(Node):
         self.publishing_bend_angle(self.bend_angle_array_r_point0)
         #self.publishing_wave_angle(self.wave_angle_array_r_point0)
         
-        time.sleep(26)
+        #time.sleep(26)
+        time.sleep(self.grasp_time)
         
         #step 2:
         self.get_logger().info('Fingers moving to second point... ...')
@@ -60,7 +66,8 @@ class Softhand_Publisher(Node):
         
         
         #step 3:
-        timer_period = 22  # seconds
+        #timer_period = 22  # seconds
+        timer_period = self.release_time
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
     def timer_callback(self):

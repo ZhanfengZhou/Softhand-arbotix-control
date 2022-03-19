@@ -1,0 +1,26 @@
+/softhand_poker_manipulate_node:
+   ros__parameters:
+      'grasp_time1': 10  
+      'grasp_time2': 8
+      'release_time1': 5
+      'release_time2': 6
+      
+      'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]     # grasp in degrees, range:[0, 300]
+      'bend_angle_array_point1': [60.0, 100.0, 200.0, 100.0, 130.0]    # bend
+      'wave_angle_array_point0': [10.0, 4.35, 2.8, 26.0, 5.0]      # rotate angle, range:[-150, 150]
+      'wave_angle_array_point1': [10.0, 65.0, -65.0, -25.0, 50.0]   # grip
+      'wave_angle_array_point2': [10.0, -12.0, -130.0, -80.0, -10.0]    # move right
+      #'wave_angle_array_point3': [10.0, 130.0, 20.0, 30.0, 110.0]    # move left
+      'wave_angle_array_point3': [10.0, -10.0, -130.0, 30.0, 110.0]    # move outer
+      'wave_angle_array_point4': [10.0, 65.0, -65.0, -25.0, 50.0]   # grip
+      #'wave_angle_array_point2': [10.0, -10.0, -125.0, 30.0, 110.0]    # move center
+      #'wave_angle_array_point3': [10.0, -10.0, -125.0, 30.0, 110.0]    # move outer
+      #'wave_angle_array_point4': [10.0, 50.0, -50.0, -25.0, 50.0]   # grip final
+      
+      
+
+
+/softhand_setspeed_clientnode:
+   ros__parameters:
+      'bend_speed_array': [15.0, 15.0, 15.0, 15.0, 20.0]  #in degrees/sec, range:[0-684]
+      'wave_speed_array': [15.0, 20.0, 20.0, 15.0, 20.0]  

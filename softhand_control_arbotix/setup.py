@@ -25,9 +25,14 @@ setup(
     entry_points={
         'console_scripts': [
             'softhand_grasp = softhand_control_arbotix.softhand_control_grasp:main',
-            'softhand_fingers_move2points = softhand_control_arbotix.softhand_fingers_move2points:main',
+            'softhand_grasp_rotate = softhand_control_arbotix.softhand_grasp_rotate:main',
+            'softhand_grasp_lateral_rotate = softhand_control_arbotix.softhand_grasp_lateral_rotate:main',
             'softhand_setspeed = softhand_control_arbotix.softhand_setspeed_servicecall:main',
             'softhand_grasp_multiobjects = softhand_control_arbotix.softhand_control_grasp_multiobjects:main',
+            'softhand_control_grasp_small_objects = softhand_control_arbotix.softhand_control_grasp_small_objects:main',
+            'softhand_poker_manipulate = softhand_control_arbotix.softhand_poker_manipulate:main',
+            'softhand_manipulate_benchmark = softhand_control_arbotix.softhand_manipulate_benchmark:main',
+            'softhand_grasp_lateral_spraying = softhand_control_arbotix.softhand_grasp_lateral_spraying:main',
         ],
     },
 )
