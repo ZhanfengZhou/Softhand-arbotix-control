@@ -2,18 +2,20 @@
    ros__parameters:
       'grasp_time1': 22
       'grasp_time2': 9
-      #'release_time1': 22    #strawberry and banana
-      'release_time1': 30    #for eggs pick and place
+      'release_time1': 22    #strawberry and banana
+      #'release_time1': 30    #for eggs pick and place
       'release_time2': 8
 
       
       'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  # in degrees, range:[0, 300]
-      'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]     
+      'wave_angle_array_point0': [40.0, 4.35, 2.8, 32.0, 10.0]   # range:[-150, 150]     
       #'bend_angle_array_point1': [58.0, 41.0, 270.0, 35.0, 41.0]       # strawberry, banana
       #'bend_angle_array_point2': [162.0, 151.0, 160.0, 115.0, 131.0]    # strawberry, banana
-      'bend_angle_array_point1': [58.0, 41.0, 270.0, 35.0, 41.0]    # egg
-      'bend_angle_array_point2': [162.0, 156.0, 165.0, 115.0, 131.0]    # egg
-      'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]    
+      #'bend_angle_array_point1': [58.0, 41.0, 270.0, 35.0, 41.0]    # egg
+      #'bend_angle_array_point2': [170.0, 156.0, 165.0, 120.0, 120.0]    # egg
+      'bend_angle_array_point1': [150.0, 120.0, 200.0, 100.0, 100.0]    # pen
+      'bend_angle_array_point2': [175.0, 150.0, 170.0, 130.0, 130.0]    # pen
+      'wave_angle_array_point1': [40.0, 4.35, 2.8, 32.0, 10.0]   
 
 
       
