@@ -53,26 +53,24 @@ class Softhand_Publisher(Node):
         #step 1: 
         self.get_logger().info('Moving soft hand! initializing ... \n ... ... \n ... ...')
         time.sleep(2)  # wait to start, or the first step will not work!!
-        self.get_logger().info('Fingers moving to first point... ...')
+        self.get_logger().info('Fingers moving to original point... ...')
         self.publishing_bend_angle(self.bend_angle_array_r_point0)
-        self.publishing_wave_angle(self.wave_angle_array_r_point0)
-        
-        #time.sleep(26)
-        time.sleep(self.grasp_time)
-        
-        #step 2:
-        self.get_logger().info('Fingers moving to second point... ...')
-        self.publishing_bend_angle(self.bend_angle_array_r_point1)
-        
         
         #step 3:
-        timer_period = self.release_time
+        timer_period = self.grasp_time
         self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.i = 0
         
     def timer_callback(self):
-
-        self.publishing_bend_angle(self.bend_angle_array_r_point0)
-        self.get_logger().info('Fingers moving back to original point... ...')
+    
+        if (self.i % 2) == 0:
+            self.get_logger().info('Fingers moving to the grasping point... ...')
+            self.publishing_bend_angle(self.bend_angle_array_r_point1)
+        elif (self.i % 2) == 1:
+            self.publishing_bend_angle(self.bend_angle_array_r_point0)
+            self.get_logger().info('Fingers moving back to original point... ...')
+        
+        self.i = self.i + 1
 
         
     def process_angle_param(self, angle_array, move_types):

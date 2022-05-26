@@ -1,12 +1,17 @@
 /softhand_grasp_node:
    ros__parameters:
-      'grasp_time': 15
-      'release_time': 30
+      'grasp_time': 10
+      'release_time': 200
       
       'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  #in degrees, range:[0, 300]
-      'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]
-      'bend_angle_array_point1': [180.0, 180.0, 140.0, 170.0, 180.0]     #both Jello fail
-      'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]    
+      'wave_angle_array_point0': [55.0, 8.35, 2.8, 26.0, 0.0]   # range:[-150, 150]
+      #'bend_angle_array_point1': [190.0, 170.0, 175.0, 160.0, 160.0]     #80mm
+      #'bend_angle_array_point1': [200.0, 185.0, 165.0, 180.0, 180.0]     #70mm
+      'bend_angle_array_point1': [210.0, 200.0, 155.0, 190.0, 190.0]     #60mm
+      #'bend_angle_array_point1': [220.0, 220.0, 145.0, 200.0, 200.0]     #50mm
+      #'bend_angle_array_point1': [231.0, 230.0, 130.0, 215.0, 210.0]      #40mm
+      #'bend_angle_array_point1': [240.0, 235.0, 120.0, 225.0, 220.0]      #30mm
+      'wave_angle_array_point1': [55.0, 8.35, 2.8, 26.0, 0.0]   
 
       
 /softhand_setspeed_clientnode:
