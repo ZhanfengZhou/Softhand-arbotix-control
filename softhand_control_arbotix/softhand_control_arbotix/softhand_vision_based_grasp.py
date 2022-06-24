@@ -52,7 +52,7 @@ class Softhand_Publisher(Node):
         
         #step 1: 
         self.get_logger().info('Moving soft hand! initializing ... \n ... ... \n ... ...')
-        time.sleep(2)  # wait to start, or the first step will not work!!
+        time.sleep(10)  # wait to start, or the first step will not work!!
         self.get_logger().info('Fingers moving to original point... ...')
         self.publishing_bend_angle(self.bend_angle_array_r_point0)
         
