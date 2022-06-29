@@ -24,6 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'fake_publisher = softhand_control_arbotix.fake_publisher:main',
             'softhand_grasp = softhand_control_arbotix.softhand_control_grasp:main',
             'softhand_grasp_rotate = softhand_control_arbotix.softhand_grasp_rotate:main',
             'softhand_grasp_lateral_rotate = softhand_control_arbotix.softhand_grasp_lateral_rotate:main',
@@ -34,6 +35,9 @@ setup(
             'softhand_manipulate_benchmark = softhand_control_arbotix.softhand_manipulate_benchmark:main',
             'softhand_grasp_lateral_spraying = softhand_control_arbotix.softhand_grasp_lateral_spraying:main',
             'softhand_vision_based_grasp = softhand_control_arbotix.softhand_vision_based_grasp:main',
+            'softhand_vision_based_manipulation = softhand_control_arbotix.softhand_vision_based_manipulation:main',
+            'softhand_vision_based_manipulation_with_sub = softhand_control_arbotix.softhand_vision_based_manipulation_with_sub:main',
+            
         ],
     },
 )
