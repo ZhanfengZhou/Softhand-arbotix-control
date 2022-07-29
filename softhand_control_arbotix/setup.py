@@ -37,7 +37,7 @@ setup(
             'softhand_vision_based_grasp = softhand_control_arbotix.softhand_vision_based_grasp:main',
             'softhand_vision_based_manipulation = softhand_control_arbotix.softhand_vision_based_manipulation:main',
             'softhand_vision_based_manipulation_with_sub = softhand_control_arbotix.softhand_vision_based_manipulation_with_sub:main',
-            
+            'softhand_vision_based_grasp_marker_from_human = softhand_control_arbotix.softhand_vision_based_grasp_marker_from_human:main',
         ],
     },
 )

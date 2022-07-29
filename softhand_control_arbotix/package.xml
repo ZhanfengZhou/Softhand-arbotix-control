@@ -17,6 +17,7 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>arbotix_msgs</exec_depend>
+  <exec_depend>example_interfaces</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

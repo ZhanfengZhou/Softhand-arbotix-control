@@ -119,16 +119,18 @@ class Softhand_Manipulation(Node):
     def timer_callback(self):
         if self.i == 0:
             self.marker_angle_initial = self.marker_angle_filtered
-            self.marker_angle_desired = self.marker_angle_filtered + self.rotation_angle
-            self.get_logger().info(f'The initial angle is {self.marker_angle_initial}')
-
-        self.get_logger().info(f'Publisher timer: {self.i}, initial angle is {self.marker_angle_initial},  desired angle is {self.marker_angle_desired}  receiving marker angle as : {self.marker_angle_filtered}')
-
-        marker_angle_error = self.marker_angle_desired - self.marker_angle_filtered
+            # self.marker_angle_desired = self.marker_angle_filtered + self.rotation_angle
+            self.marker_angle_desired = self.rotation_angle
+            self.marker_angle_desired_back = -10
+            
 
         direction = -1
             
         if self.i  < self.manipulation_steps:
+
+            self.get_logger().info(f'Publisher timer: {self.i}, initial angle is {self.marker_angle_initial},  desired angle is {self.marker_angle_desired}  receiving marker angle as : {self.marker_angle_filtered}')
+            marker_angle_error = self.marker_angle_desired - self.marker_angle_filtered
+
             if (marker_angle_error >= 1):
                 direction = 0    #rotate to right
                 self.get_logger().info('Rotating objects to right!')
@@ -148,11 +150,28 @@ class Softhand_Manipulation(Node):
             else:
                 direction = -1
                 self.get_logger().info('Error is 0 now!!!!!!!!!!Stop!!!!!!!!!!!!')
-            
-        elif self.i  >= self.manipulation_steps:
+        elif (self.manipulation_steps + 10) <= self.i < 4*self.manipulation_steps :
+            self.get_logger().info('Rotating back to left!')
+            direction = 1    #rotate to left
+
+            self.get_logger().info(f'Publisher timer: {self.i}, initial angle is {self.marker_angle_initial},  desired angle is {self.marker_angle_desired_back}  receiving marker angle as : {self.marker_angle_filtered}')
+            marker_angle_error = self.marker_angle_desired_back - self.marker_angle_filtered
+            if (marker_angle_error <= -1):
+                self.get_logger().info('Rotating objects to left!')
+                self.wave_angle_accumulate(direction)
+                self.bend_angle_accumulate(direction)
+
+                self.publishing_wave_angle(self.wave_angle_array_r)
+                self.publishing_bend_angle(self.bend_angle_array_r)
+            else:
+                direction = -1
+                self.get_logger().info('Error is 0 now!!!!!!!!!!Stop!!!!!!!!!!!!')
+
+
+        elif self.i  >= 4*self.manipulation_steps:
             self.get_logger().info('Rotating limits reached')
         else:
-            self.get_logger().error('Rotation wrong')
+            self.get_logger().error('Rotation stopped or wrong')
         
         self.i = self.i + 1
 
