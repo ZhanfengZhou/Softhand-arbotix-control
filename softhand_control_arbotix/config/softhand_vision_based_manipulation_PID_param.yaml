@@ -1,0 +1,23 @@
+/softhand_manipulation_node:
+   ros__parameters:
+      'grasp_time': 10
+      'release_time': 0
+      'manipulation_step_time': 0.5  #seconds
+
+      'marker_angle_desired': 10.0   #degree
+
+      'bend_angle_array_point0': [0.0, 41.0, 270.0, 35.0, 0.0]  #in degrees, range:[0, 300]
+      'bend_angle_array_limit': [105.0, 170.0, 170.0, 145.0, 100.0]
+      'bend_step_angle': 0.75  #degree
+
+      'wave_angle_array_point0': [40.0, 4.35, 2.8, 32.0, 10.0]   # range:[-150, 150]
+      'wave_angle_array_limit1': [-60.0, 70.0, -75.0, 70.0, -85.0]
+      'wave_angle_array_limit2': [130.0, -40.0, 70.0, -50.0, 70.0]
+      'wave_step_angle': 
+
+      'bend_speed_array_preset': [5.0, 5.0, 5.0, 5.0, 5.0]  #in degrees/sec, range:[0-684]
+      'wave_speed_array_preset': [1.0, 1.0, 1.0, 1.0, 1.0]  
+
+      'PID_P' : 1
+      'PID_I' : 0.1
+      'PID_D' : 0.1

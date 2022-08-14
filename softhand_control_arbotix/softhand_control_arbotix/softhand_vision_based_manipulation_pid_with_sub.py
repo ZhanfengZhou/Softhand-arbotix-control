@@ -7,13 +7,17 @@ from rclpy.exceptions import ParameterNotDeclaredException
 from rclpy.executors import MultiThreadedExecutor
 
 from std_msgs.msg import Float64
+from arbotix_msgs.srv import Enable, SetSpeed, Relax
 
 
 class Softhand_Manipulation(Node):
 
     def __init__(self):
         super().__init__('softhand_manipulation')    #node name
-        self.publisher1_ = self.create_publisher(Float64, 'dynamixel1/command', 10)    #topic name
+
+
+        # motor position publisher
+        self.publisher1_ = self.create_publisher(Float64, 'dynamixel1/command', 10)    
         self.publisher2_ = self.create_publisher(Float64, 'dynamixel2/command', 10)
         self.publisher3_ = self.create_publisher(Float64, 'dynamixel3/command', 10)
         self.publisher4_ = self.create_publisher(Float64, 'dynamixel4/command', 10)
@@ -26,6 +30,20 @@ class Softhand_Manipulation(Node):
         self.publisher_array = [self.publisher1_, self.publisher2_, self.publisher3_, self.publisher4_,
                     self.publisher5_, self.publisher6_, self.publisher7_, self.publisher8_,
                     self.publisher9_, self.publisher10_]
+        
+        # motor speed client
+        self.client1 = self.create_client_i(1)    #service client name
+        self.client2 = self.create_client_i(2)
+        self.client3 = self.create_client_i(3)
+        self.client4 = self.create_client_i(4)
+        self.client5 = self.create_client_i(5)
+        self.client6 = self.create_client_i(6)
+        self.client7 = self.create_client_i(7)
+        self.client8 = self.create_client_i(8)
+        self.client9 = self.create_client_i(9)
+        self.client10 = self.create_client_i(10)
+        self.client_array = [self.client1, self.client2, self.client3, self.client4, self.client5,
+                self.client6, self.client7, self.client8, self.client9, self.client10]
 
         self.marker_angle_list = []
         self.marker_angle_filtered = -1   #initial marker angle
@@ -47,9 +65,119 @@ class Softhand_Manipulation(Node):
         self.declare_parameter('manipulation_step_time') 
         self.declare_parameter('manipulation_steps') 
         self.declare_parameter('bend_step_angle') 
-        self.declare_parameter('rotation_angle') 
-        
+        self.declare_parameter('marker_angle_desired') 
+        self.declare_parameter('K_P') 
+        self.declare_parameter('K_I') 
+        self.declare_parameter('K_D') 
+
         self.publish_motors_angle_steps()
+
+    def create_client_i(self, client_num):
+        srv_name = 'dynamixel%s/set_speed' % str(client_num)
+        client = self.create_client(SetSpeed, srv_name, callback_group=MutuallyExclusiveCallbackGroup())
+        
+        # check if service is connected.
+        while not client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service {} not available, waiting again...'.format(client_num) )
+
+        self.get_logger().info('server {} is connected to client {}'.format(client_num, client_num) )
+        
+        return client
+
+    def send_request(self):
+        bend_speed_array_preset = self.get_parameter('bend_speed_array_preset').value    #get preset speed degrees/sec
+        wave_speed_array_preset = self.get_parameter('wave_speed_array_preset').value
+        bend_speed_array_preset_r = [x/180*numpy.pi for x in bend_speed_array_preset]    #in radians/sec
+        wave_speed_array_preset_r = [x/180*numpy.pi for x in wave_speed_array_preset]
+
+        speed_0 = [0, 0, 0, 0, 0]
+        
+        self.get_logger().info('Sending speed info to motors based on PID controller... ...')
+
+        self.sending_bend_speed(bend_speed_array_preset_r)
+        self.sending_wave_speed(wave_speed_array_preset_r)
+        
+        self.last_time = time.time()
+        self.last_error = self.marker_angle_error
+        self.PID_P = 0.0
+        self.PID_I = 0.0
+        self.PID_D = 0.0
+
+        # wave speed is based on the PID controller
+        while True:
+
+            # pid speed controller for wave motors
+
+            wave_speed_array_r = self.PID_update(self, self.marker_angle_error)
+
+            self.sending_wave_speed(wave_speed_array_r)
+
+            if self.target_arrived:
+                self.sending_wave_speed(speed_0)
+
+    def PID_update(self, error):
+        
+        K_P = self.get_parameter(K_P)
+        K_I = self.get_parameter(K_I)
+        K_D = self.get_parameter(K_D)
+
+        # PID should be updated at a regular interval
+        sample_time = 0.5  # second
+
+        # Update PID only when the time interval is larger than the sample time interval
+        current_time = time.time()
+        delta_time = current_time - self.last_time
+        delta_error = error - self.last_error
+
+        '''Integral windup, also known as integrator windup or reset windup, refers to the situation in a PID feedback controller where
+        a large change in setpoint occurs (say a positive change) and the integral terms accumulates a significant error during the 
+        rise (windup), thus overshooting and continuing to increase as this accumulated error is unwound
+        (offset by errors in the other direction). The specific problem is the excess overshooting.'''
+
+        windup_guard = 2
+
+        if (delta_time >= sample_time):
+
+            self.PID_P = K_P * error
+            
+            self.PID_I = self.PID_I + K_I * error * delta_time
+            if self.PID_I <= -windup_guard:
+                self.PID_I = -windup_guard
+            elif self.PID_I >= windup_guard:
+                self.PID_I = windup_guard
+
+            self.PID_D = K_D * (delta_error / delta_time)
+
+            self.last_time = self.current_time
+            self.last_error = error
+
+            output = self.PID_P + self.PID_I + self.PID_D
+
+            return output
+
+        
+        
+    def sending_bend_speed(self, bend_speed_array_r):     
+        fingerbend_2motorID = [3, 4, 5, 6, 1]
+        
+        for i in range(5):
+            req = SetSpeed.Request()
+            req.speed = bend_speed_array_r[i]
+            motorID = fingerbend_2motorID[i]
+            srv_name = 'dynamixel%s/set_speed' % str(motorID)
+            self.future = self.client_array[motorID-1].call_async(req)
+            self.get_logger().info('Sending to server {}: {}'.format(srv_name, str(req.speed) ))
+            
+    def sending_wave_speed(self, wave_speed_array_r):
+        fingerwave_2motorID = [2, 8, 7, 10, 9]
+        
+        for i in range(5):
+            req = SetSpeed.Request()
+            req.speed = wave_speed_array_r[i]
+            motorID = fingerwave_2motorID[i]
+            srv_name = 'dynamixel%s/set_speed' % str(motorID)
+            self.future = self.client_array[motorID-1].call_async(req) 
+            self.get_logger().info('Sending to server {}: {}'.format(srv_name, str(req.speed) ))
 
     def listener_callback(self, msg):
         marker_angle =  msg.data
@@ -78,7 +206,7 @@ class Softhand_Manipulation(Node):
         self.manipulation_step_time = self.get_parameter('manipulation_step_time').value
         self.manipulation_steps = self.get_parameter('manipulation_steps').value
         self.bend_step_angle = self.get_parameter('bend_step_angle').value
-        self.rotation_angle = self.get_parameter('rotation_angle').value
+        self.marker_angle_desired = self.get_parameter('marker_angle_desired').value
         
         self.bend_angle_array_point0 = self.get_parameter('bend_angle_array_point0').value
         self.bend_angle_array_point1 = self.get_parameter('bend_angle_array_point1').value
@@ -111,10 +239,19 @@ class Softhand_Manipulation(Node):
         
         self.wave_angle_array_r = self.wave_angle_array_r_point0
         self.bend_angle_array_r = self.bend_angle_array_r_point1
-        self.timer = self.create_timer(timer_period, self.timer_callback, callback_group=MutuallyExclusiveCallbackGroup())
+        #self.timer = self.create_timer(timer_period, self.timer_callback, callback_group=MutuallyExclusiveCallbackGroup())
         self.i = 0
 
+    def PID_control(self):
+        self.marker_angle_initial = self.marker_angle_filtered
         
+
+
+        while True:
+            self.i = 0
+            
+
+
     def timer_callback(self):
         if self.i == 0:
             self.marker_angle_initial = self.marker_angle_filtered
@@ -149,6 +286,7 @@ class Softhand_Manipulation(Node):
             else:
                 direction = -1
                 self.get_logger().info('Error is 0 now!!!!!!!!!!Stop!!!!!!!!!!!!')
+            
         elif (self.manipulation_steps + 10) <= self.i < 4*self.manipulation_steps :
             self.get_logger().info('Rotating back to left!')
             direction = 1    #rotate to left
@@ -244,6 +382,15 @@ def main(args=None):
 
     softhand_manipulation_node = Softhand_Manipulation()
 
+    # This creates a parallel thread of execution that will execute the `send_request` method of the client node. 
+    # This is because I want the send request to run concurrently with the callbacks of the node.
+    thread1 = Thread(target=softhand_manipulation_node.send_request)
+    thread1.start()
+
+    thread2 = Thread(target=softhand_manipulation_node.PID_control)
+    thread2.start()
+
+    # I am using a MultiThreadedExecutor here as I want all the callbacks to run on a different thread each 
     executor = MultiThreadedExecutor()
     executor.add_node(softhand_manipulation_node)
     executor.spin()
