@@ -3,6 +3,7 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 import rclpy
 import numpy
 import time
+import termcolor
 from rclpy.node import Node
 from rclpy.exceptions import ParameterNotDeclaredException
 from rclpy.executors import MultiThreadedExecutor
@@ -49,31 +50,31 @@ class Softhand_Manipulation(Node):
                 self.client6, self.client7, self.client8, self.client9, self.client10]
 
         self.marker_angle_list = []
-        self.marker_angle_filtered = -1   #initial marker angle
+        self.marker_angle_feedback = -1   #initial marker angle
         
         self.subscription = self.create_subscription(
             Float64,
             'topic',
-            self.listener_callback,
+            self.camera_callback,
             10, callback_group=MutuallyExclusiveCallbackGroup())
         self.subscription  # prevent unused variable warning
 
         self.declare_parameter('bend_angle_array_point0')    #in degrees
-        self.declare_parameter('bend_angle_array_point1')
+        self.declare_parameter('bend_angle_array_limit')
         self.declare_parameter('wave_angle_array_point0')
-        self.declare_parameter('wave_angle_array_point1')
-        self.declare_parameter('wave_angle_array_point2')
-        self.declare_parameter('grasp_time') 
-        self.declare_parameter('release_time') 
-        self.declare_parameter('manipulation_step_time') 
-        self.declare_parameter('manipulation_steps') 
-        self.declare_parameter('bend_step_angle') 
+        self.declare_parameter('wave_angle_array_limit1')
+        self.declare_parameter('wave_angle_array_limit2')
+
         self.declare_parameter('marker_angle_desired') 
+
         self.declare_parameter('K_P') 
         self.declare_parameter('K_I') 
         self.declare_parameter('K_D') 
 
-        self.publish_motors_angle_steps()
+        self.object_grasped = False
+        self.marker_feedback_update_times = 0
+
+        self.motors_parameter_set()
 
     def create_client_i(self, client_num):
         srv_name = 'dynamixel%s/set_speed' % str(client_num)
@@ -81,9 +82,9 @@ class Softhand_Manipulation(Node):
         
         # check if service is connected.
         while not client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service {} not available, waiting again...'.format(client_num) )
+            self.get_logger().info(termcolor.colored(f'service {client_num} not available, waiting again...', 'blue' ))
 
-        self.get_logger().info('server {} is connected to client {}'.format(client_num, client_num) )
+        self.get_logger().info(termcolor.colored(f'server {client_num} is connected to client {client_num}', 'blue' ))
         
         return client
 
@@ -93,43 +94,69 @@ class Softhand_Manipulation(Node):
         wave_speed_array_preset = self.get_parameter('wave_speed_array_preset').value
         bend_speed_array_preset_r = [x/180*numpy.pi for x in bend_speed_array_preset]    #in radians/sec
         wave_speed_array_preset_r = [x/180*numpy.pi for x in wave_speed_array_preset]
-
-        speed_0 = [0, 0, 0, 0, 0]
         
-        self.get_logger().info('Sending speed info to motors based on PID controller... ...')
+        self.get_logger().info(termcolor.colored(f'MotorSpeed Client Start working: sending preset speed to motors ... ...', 'blue'))
 
         self.sending_bend_speed(bend_speed_array_preset_r)
         self.sending_wave_speed(wave_speed_array_preset_r)
 
+        self.get_logger().info(termcolor.colored(f'MotorSpeed Client: waiting softhand to grasp object ... ...', 'blue'))
+
+        while not self.object_grasped:
+            pass        
+
+        self.get_logger().info(termcolor.colored(f'MotorSpeed Client: object grasped, start PID speed controller for motors ... ...', 'blue'))
+
+        wave_speed_array_r = [0, 0, 0, 0, 0]
+        self.sending_wave_speed(wave_speed_array_r)
+
         self.K_P = self.get_parameter(self.K_P)
         self.K_I = self.get_parameter(self.K_I)
         self.K_D = self.get_parameter(self.K_D)        
-        self.last_time = time.time()
+        
         self.last_error = self.marker_angle_error
         self.PID_P = 0.0
         self.PID_I = 0.0
         self.PID_D = 0.0
 
+        last_time = time.time()
+        # PID should be updated at a regular interval
+        sample_time = 0.2  # second
+
+        PID_update_times = 0
         # wave speed is based on the PID controller
         while True:
 
             # pid speed controller for wave motors
 
-            wave_speed = self.PID_update(self, self.marker_angle_error)
-            wave_speed_r = wave_speed/180*numpy.pi
-            wave_speed_array_r = [wave_speed_r, wave_speed_r, wave_speed_r, wave_speed_r, wave_speed_r]
+            # Update PID only when the time interval is larger than the sample time interval
+            current_time = time.time()
+            delta_time = current_time - last_time
 
-            self.sending_wave_speed(wave_speed_array_r)
+            if (delta_time >= sample_time):
+
+                self.wave_speed = self.PID_update(self, self.marker_angle_error, delta_time)
+
+                if self.wave_speed > 15:
+                    self.wave_speed = 0
+                    raise Exception(f'MotorSpeed Client: Finger wave speed is too fast, K_p is too large!')
+
+                wave_speed_r = self.wave_speed/180*numpy.pi
+                wave_speed_array_r = [wave_speed_r, wave_speed_r, wave_speed_r, wave_speed_r, wave_speed_r]
 
 
-    def PID_update(self, error):
+                self.sending_wave_speed(wave_speed_array_r)
 
-        # PID should be updated at a regular interval
-        sample_time = 0.5  # second
+                last_time = current_time
 
-        # Update PID only when the time interval is larger than the sample time interval
-        current_time = time.time()
-        delta_time = current_time - self.last_time
+                if (PID_update_times % 20 == 0):
+                    self.get_logger().info(termcolor.colored(f'MotorSpeed Client: PID speed controller updating for the motors, speed: {wave_speed}, times: {PID_update_times}', 'blue'))
+                
+                PID_update_times = PID_update_times + 1
+
+
+    def PID_update(self, error, delta_time):
+
         delta_error = error - self.last_error
 
         '''Integral windup, also known as integrator windup or reset windup, refers to the situation in a PID feedback controller where
@@ -139,26 +166,25 @@ class Softhand_Manipulation(Node):
 
         windup_guard = 2
 
-        if (delta_time >= sample_time):
+        self.PID_P = self.K_P * error
 
-            self.PID_P = self.K_P * error
-            
-            self.PID_I = self.PID_I + self.K_I * error * delta_time
-            if self.PID_I <= -windup_guard:
-                self.PID_I = -windup_guard
-            elif self.PID_I >= windup_guard:
-                self.PID_I = windup_guard
+        self.PID_I = self.PID_I + self.K_I * error * delta_time
+        if self.PID_I <= -windup_guard:
+            self.PID_I = -windup_guard
+        elif self.PID_I >= windup_guard:
+            self.PID_I = windup_guard
 
-            self.PID_D = self.K_D * (delta_error / delta_time)
+        self.PID_D = self.K_D * (delta_error / delta_time)
 
-            self.last_time = self.current_time
-            self.last_error = error
+        self.last_error = error
 
-            output = self.PID_P + self.PID_I + self.PID_D
+        output = self.PID_P + self.PID_I + self.PID_D
 
-            return output
+        return output
+
         
-    def sending_bend_speed(self, bend_speed_array_r):     
+    def sending_bend_speed(self, bend_speed_array_r):
+        
         fingerbend_2motorID = [3, 4, 5, 6, 1]
         
         for i in range(5):
@@ -167,9 +193,10 @@ class Softhand_Manipulation(Node):
             motorID = fingerbend_2motorID[i]
             srv_name = 'dynamixel%s/set_speed' % str(motorID)
             self.future = self.client_array[motorID-1].call_async(req)
-            self.get_logger().info('Sending to server {}: {}'.format(srv_name, str(req.speed) ))
+            #self.get_logger().info('Sending motor speed to server {}: {}'.format(srv_name, str(req.speed) ))
             
     def sending_wave_speed(self, wave_speed_array_r):
+        
         fingerwave_2motorID = [2, 8, 7, 10, 9]
         
         for i in range(5):
@@ -178,9 +205,10 @@ class Softhand_Manipulation(Node):
             motorID = fingerwave_2motorID[i]
             srv_name = 'dynamixel%s/set_speed' % str(motorID)
             self.future = self.client_array[motorID-1].call_async(req) 
-            self.get_logger().info('Sending to server {}: {}'.format(srv_name, str(req.speed) ))
+            #self.get_logger().info('Sending motor speed to server {}: {}'.format(srv_name, str(req.speed) ))
+    
 
-    def listener_callback(self, msg):
+    def camera_callback(self, msg):
 
         marker_angle =  msg.data
         
@@ -191,8 +219,14 @@ class Softhand_Manipulation(Node):
 
         if len(self.marker_angle_list) == 5:
 
-            self.marker_angle_filtered = self.marker_angle_filter(self.marker_angle_list)
-            self.get_logger().info(f'the filtered marker angle is {self.marker_angle_filtered}') 
+            self.marker_angle_feedback = self.marker_angle_filter(self.marker_angle_list)
+            self.marker_angle_error = self.marker_angle_desired - self.marker_angle_feedback
+        
+        if (self.marker_feedback_update_times % 10 == 0):
+            self.get_logger().info(termcolor.colored(f'The marker feedback angle is {self.marker_angle_feedback}, and the desired marker angle is {self.marker_angle_desired}', 'yellow'))
+            self.get_logger().info(termcolor.colored(f'The marker angle error is {self.marker_angle_error}', 'yellow')) 
+
+        self.marker_feedback_update_times = self.marker_feedback_update_times + 1
     
     def marker_angle_filter(self, marker_angle_list):
 
@@ -201,139 +235,56 @@ class Softhand_Manipulation(Node):
         return angle_filtered
 
         
-    def publish_motors_angle_steps(self):
+    def motors_parameter_set(self):
     
         # get and process parameter:
-        self.grasp_time = self.get_parameter('grasp_time').value
-        self.release_time = self.get_parameter('release_time').value
-        self.manipulation_step_time = self.get_parameter('manipulation_step_time').value
-        self.manipulation_steps = self.get_parameter('manipulation_steps').value
-        self.bend_step_angle = self.get_parameter('bend_step_angle').value
         self.marker_angle_desired = self.get_parameter('marker_angle_desired').value
         
         self.bend_angle_array_point0 = self.get_parameter('bend_angle_array_point0').value
-        self.bend_angle_array_point1 = self.get_parameter('bend_angle_array_point1').value
+        self.bend_angle_array_limit = self.get_parameter('bend_angle_array_limit').value
         self.wave_angle_array_point0 = self.get_parameter('wave_angle_array_point0').value
-        self.wave_angle_array_point1 = self.get_parameter('wave_angle_array_point1').value
-        self.wave_angle_array_point2 = self.get_parameter('wave_angle_array_point2').value
+        self.wave_angle_array_limit1 = self.get_parameter('wave_angle_array_limit1').value
+        self.wave_angle_array_limit2 = self.get_parameter('wave_angle_array_limit2').value
         
         self.bend_angle_array_r_point0 = self.process_angle_param(self.bend_angle_array_point0, 'bend')
-        self.bend_angle_array_r_point1 = self.process_angle_param(self.bend_angle_array_point1, 'bend')
+        self.bend_angle_array_r_limit = self.process_angle_param(self.bend_angle_array_limit, 'bend')
         self.wave_angle_array_r_point0 = self.process_angle_param(self.wave_angle_array_point0, 'wave')
-        self.wave_angle_array_r_point1 = self.process_angle_param(self.wave_angle_array_point1, 'wave')
-        self.wave_angle_array_r_point2 = self.process_angle_param(self.wave_angle_array_point2, 'wave')
+        self.wave_angle_array_r_limit1 = self.process_angle_param(self.wave_angle_array_limit1, 'wave')
+        self.wave_angle_array_r_limit2 = self.process_angle_param(self.wave_angle_array_limit2, 'wave')
         
-        #step 1: 
-        self.get_logger().info('Moving soft hand! initializing ... \n ... ... \n ... ...')
+
+    def finger_move(self):
+
+        #step 1: Initialization 
+        self.get_logger().info(termcolor.colored('Motor Publisher: initializing motor... ...', 'green'))
         time.sleep(2)  # wait to start, or the first step will not work!!
-        self.get_logger().info('Fingers moving to original point... ...')
+
+        self.get_logger().info(termcolor.colored('Motor Publisher: Fingers moving to original point... ...', 'green'))
         self.publishing_bend_angle(self.bend_angle_array_r_point0)
         self.publishing_wave_angle(self.wave_angle_array_r_point0)
-        
-        #step 2:
-        time.sleep(2)
-        self.get_logger().info('Grasping')
-        self.publishing_bend_angle(self.bend_angle_array_r_point1)
-        
         time.sleep(5)
-        #step 3:
-        timer_period = self.manipulation_step_time
-        #timer_period = self.grasp_time
         
-        self.wave_angle_array_r = self.wave_angle_array_r_point0
-        self.bend_angle_array_r = self.bend_angle_array_r_point1
-        #self.timer = self.create_timer(timer_period, self.timer_callback, callback_group=MutuallyExclusiveCallbackGroup())
-        self.i = 0     
+        #step 2: Grasp object
+        
+        self.publishing_bend_angle(self.bend_angle_array_r_limit)
+        self.get_logger().info(termcolor.colored('Motor Publisher: Fingers bending to grasp the object', 'green'))
+        time.sleep(5)
 
+        self.object_grasped = True
+        
+        #step 3: Rotate object
+        self.get_logger().info(termcolor.colored('Motor Publisher: Rotating objects', 'green'))
+        while True:
+            if self.wave_speed > 0:
+                self.get_logger().info(termcolor.colored('Rotating objects to right!', 'green'))
+                self.publishing_wave_angle(self.wave_angle_array_r_limit1)
 
-    def timer_callback(self):
-        if self.i == 0:
-            self.marker_angle_initial = self.marker_angle_filtered
-            # self.marker_angle_desired = self.marker_angle_filtered + self.rotation_angle
-            self.marker_angle_desired = self.rotation_angle
-            self.marker_angle_desired_back = -10
-            
+            elif self.wave_speed < 0:
+                self.get_logger().info(termcolor.colored('Rotating objects to left!', 'green'))
+                self.publishing_wave_angle(self.wave_angle_array_r_limit2)
 
-        direction = -1
-            
-        if self.i  < self.manipulation_steps:
-
-            self.get_logger().info(f'Publisher timer: {self.i}, initial angle is {self.marker_angle_initial},  desired angle is {self.marker_angle_desired}  receiving marker angle as : {self.marker_angle_filtered}')
-            marker_angle_error = self.marker_angle_desired - self.marker_angle_filtered
-
-            if (marker_angle_error >= 1):
-                direction = 0    #rotate to right
-                self.get_logger().info('Rotating objects to right!')
-                self.wave_angle_accumulate(direction)
-                self.bend_angle_accumulate(direction)
-
-                self.publishing_wave_angle(self.wave_angle_array_r)
-                self.publishing_bend_angle(self.bend_angle_array_r)
-            elif (marker_angle_error <= -1):
-                direction = 1    #rotate to left
-                self.get_logger().info('Rotating objects to left!')
-                self.wave_angle_accumulate(direction)
-                self.bend_angle_accumulate(direction)
-
-                self.publishing_wave_angle(self.wave_angle_array_r)
-                self.publishing_bend_angle(self.bend_angle_array_r)
             else:
-                direction = -1
                 self.get_logger().info('Error is 0 now!!!!!!!!!!Stop!!!!!!!!!!!!')
-            
-        elif (self.manipulation_steps + 10) <= self.i < 4*self.manipulation_steps :
-            self.get_logger().info('Rotating back to left!')
-            direction = 1    #rotate to left
-
-            self.get_logger().info(f'Publisher timer: {self.i}, initial angle is {self.marker_angle_initial},  desired angle is {self.marker_angle_desired_back}  receiving marker angle as : {self.marker_angle_filtered}')
-            marker_angle_error = self.marker_angle_desired_back - self.marker_angle_filtered
-            if (marker_angle_error <= -1):
-                self.get_logger().info('Rotating objects to left!')
-                self.wave_angle_accumulate(direction)
-                self.bend_angle_accumulate(direction)
-
-                self.publishing_wave_angle(self.wave_angle_array_r)
-                self.publishing_bend_angle(self.bend_angle_array_r)
-            else:
-                direction = -1
-                self.get_logger().info('Error is 0 now!!!!!!!!!!Stop!!!!!!!!!!!!')
-
-
-        elif self.i  >= 4*self.manipulation_steps:
-            self.get_logger().info('Rotating limits reached')
-        else:
-            self.get_logger().error('Rotation stopped or wrong')
-        
-        self.i = self.i + 1
-
-    def wave_angle_accumulate(self, direction):
-        
-        if direction == 0:    #rotate to right
-            self.wave_angle_array_r[0] = self.wave_angle_array_r[0] + (self.wave_angle_array_r_point1[0] - self.wave_angle_array_r_point0[0]) / self.manipulation_steps
-            self.wave_angle_array_r[1] = self.wave_angle_array_r[1] + (self.wave_angle_array_r_point1[1] - self.wave_angle_array_r_point0[1]) / self.manipulation_steps
-            self.wave_angle_array_r[2] = self.wave_angle_array_r[2] + (self.wave_angle_array_r_point1[2] - self.wave_angle_array_r_point0[2]) / self.manipulation_steps
-            self.wave_angle_array_r[3] = self.wave_angle_array_r[3] + (self.wave_angle_array_r_point1[3] - self.wave_angle_array_r_point0[3]) / self.manipulation_steps
-            self.wave_angle_array_r[4] = self.wave_angle_array_r[4] + (self.wave_angle_array_r_point1[4] - self.wave_angle_array_r_point0[4]) / self.manipulation_steps
-        elif direction == 1:   #rotate to left
-            self.wave_angle_array_r[0] = self.wave_angle_array_r[0] + (self.wave_angle_array_r_point2[0] - self.wave_angle_array_r_point0[0]) / self.manipulation_steps
-            self.wave_angle_array_r[1] = self.wave_angle_array_r[1] + (self.wave_angle_array_r_point2[1] - self.wave_angle_array_r_point0[1]) / self.manipulation_steps
-            self.wave_angle_array_r[2] = self.wave_angle_array_r[2] + (self.wave_angle_array_r_point2[2] - self.wave_angle_array_r_point0[2]) / self.manipulation_steps
-            self.wave_angle_array_r[3] = self.wave_angle_array_r[3] + (self.wave_angle_array_r_point2[3] - self.wave_angle_array_r_point0[3]) / self.manipulation_steps
-            self.wave_angle_array_r[4] = self.wave_angle_array_r[4] + (self.wave_angle_array_r_point2[4] - self.wave_angle_array_r_point0[4]) / self.manipulation_steps
-        else:
-            self.get_logger().error('wave_angle_accumulate: No rotating direction or wave angle wrong ')
-
-
-    def bend_angle_accumulate(self, direction):
-        
-        if direction == 0: #rotate to right
-            self.bend_angle_array_r[1] -= self.bend_step_angle/180*numpy.pi
-            self.bend_angle_array_r[3] += self.bend_step_angle/180*numpy.pi
-        elif direction == 1:
-            self.bend_angle_array_r[1] += self.bend_step_angle/180*numpy.pi
-            self.bend_angle_array_r[3] -= self.bend_step_angle/180*numpy.pi
-        else:
-            self.get_logger().error('bend_angle_accumulate: No rotating direction or bend angle wrong ')
 
 
     def process_angle_param(self, angle_array, move_types):
@@ -381,7 +332,7 @@ def main(args=None):
     thread1 = Thread(target=softhand_manipulation_node.send_request)
     thread1.start()
 
-    thread2 = Thread(target=softhand_manipulation_node.PID_control)
+    thread2 = Thread(target=softhand_manipulation_node.finger_move)
     thread2.start()
 
     # I am using a MultiThreadedExecutor here as I want all the callbacks to run on a different thread each 
