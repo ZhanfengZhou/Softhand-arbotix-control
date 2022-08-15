@@ -1,10 +1,13 @@
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+
 import rclpy
 import numpy
 import time
 from rclpy.node import Node
 from rclpy.exceptions import ParameterNotDeclaredException
 from rclpy.executors import MultiThreadedExecutor
+
+from threading import Thread
 
 from std_msgs.msg import Float64
 from arbotix_msgs.srv import Enable, SetSpeed, Relax
@@ -85,6 +88,7 @@ class Softhand_Manipulation(Node):
         return client
 
     def send_request(self):
+
         bend_speed_array_preset = self.get_parameter('bend_speed_array_preset').value    #get preset speed degrees/sec
         wave_speed_array_preset = self.get_parameter('wave_speed_array_preset').value
         bend_speed_array_preset_r = [x/180*numpy.pi for x in bend_speed_array_preset]    #in radians/sec
@@ -96,7 +100,10 @@ class Softhand_Manipulation(Node):
 
         self.sending_bend_speed(bend_speed_array_preset_r)
         self.sending_wave_speed(wave_speed_array_preset_r)
-        
+
+        self.K_P = self.get_parameter(self.K_P)
+        self.K_I = self.get_parameter(self.K_I)
+        self.K_D = self.get_parameter(self.K_D)        
         self.last_time = time.time()
         self.last_error = self.marker_angle_error
         self.PID_P = 0.0
@@ -108,18 +115,14 @@ class Softhand_Manipulation(Node):
 
             # pid speed controller for wave motors
 
-            wave_speed_array_r = self.PID_update(self, self.marker_angle_error)
+            wave_speed = self.PID_update(self, self.marker_angle_error)
+            wave_speed_r = wave_speed/180*numpy.pi
+            wave_speed_array_r = [wave_speed_r, wave_speed_r, wave_speed_r, wave_speed_r, wave_speed_r]
 
             self.sending_wave_speed(wave_speed_array_r)
 
-            if self.target_arrived:
-                self.sending_wave_speed(speed_0)
 
     def PID_update(self, error):
-        
-        K_P = self.get_parameter(K_P)
-        K_I = self.get_parameter(K_I)
-        K_D = self.get_parameter(K_D)
 
         # PID should be updated at a regular interval
         sample_time = 0.5  # second
@@ -138,15 +141,15 @@ class Softhand_Manipulation(Node):
 
         if (delta_time >= sample_time):
 
-            self.PID_P = K_P * error
+            self.PID_P = self.K_P * error
             
-            self.PID_I = self.PID_I + K_I * error * delta_time
+            self.PID_I = self.PID_I + self.K_I * error * delta_time
             if self.PID_I <= -windup_guard:
                 self.PID_I = -windup_guard
             elif self.PID_I >= windup_guard:
                 self.PID_I = windup_guard
 
-            self.PID_D = K_D * (delta_error / delta_time)
+            self.PID_D = self.K_D * (delta_error / delta_time)
 
             self.last_time = self.current_time
             self.last_error = error
@@ -154,8 +157,6 @@ class Softhand_Manipulation(Node):
             output = self.PID_P + self.PID_I + self.PID_D
 
             return output
-
-        
         
     def sending_bend_speed(self, bend_speed_array_r):     
         fingerbend_2motorID = [3, 4, 5, 6, 1]
@@ -180,19 +181,21 @@ class Softhand_Manipulation(Node):
             self.get_logger().info('Sending to server {}: {}'.format(srv_name, str(req.speed) ))
 
     def listener_callback(self, msg):
+
         marker_angle =  msg.data
         
-        if len(self.marker_angle_list) < 10:
+        if len(self.marker_angle_list) < 5:
             self.marker_angle_list.append(marker_angle)
         else:
             self.marker_angle_list = []
 
-        if len(self.marker_angle_list) == 10:
+        if len(self.marker_angle_list) == 5:
 
             self.marker_angle_filtered = self.marker_angle_filter(self.marker_angle_list)
             self.get_logger().info(f'the filtered marker angle is {self.marker_angle_filtered}') 
     
     def marker_angle_filter(self, marker_angle_list):
+
         angle_sum = sum(marker_angle_list)
         angle_filtered = angle_sum / len(marker_angle_list)
         return angle_filtered
@@ -240,16 +243,7 @@ class Softhand_Manipulation(Node):
         self.wave_angle_array_r = self.wave_angle_array_r_point0
         self.bend_angle_array_r = self.bend_angle_array_r_point1
         #self.timer = self.create_timer(timer_period, self.timer_callback, callback_group=MutuallyExclusiveCallbackGroup())
-        self.i = 0
-
-    def PID_control(self):
-        self.marker_angle_initial = self.marker_angle_filtered
-        
-
-
-        while True:
-            self.i = 0
-            
+        self.i = 0     
 
 
     def timer_callback(self):
