@@ -39,6 +39,10 @@ setup(
             'softhand_vision_based_manipulation_with_sub = softhand_control_arbotix.softhand_vision_based_manipulation_with_sub:main',
             'softhand_vision_based_grasp_marker_from_human = softhand_control_arbotix.softhand_vision_based_grasp_marker_from_human:main',
             'softhand_grasp_gesture_test = softhand_control_arbotix.softhand_grasp_gesture_test:main',
+            'softhand_vision_based_manipulation_pid_with_sub = softhand_control_arbotix.softhand_vision_based_manipulation_pid_with_sub:main',
+            'softhand_vision_based_manipulation_pid_step1 = softhand_control_arbotix.softhand_vision_based_manipulation_pid_step1:main',
+            'softhand_vision_based_manipulation_pid_step2 = softhand_control_arbotix.softhand_vision_based_manipulation_pid_step2:main',
+            'softhand_vision_based_manipulation_pid_step3 = softhand_control_arbotix.softhand_vision_based_manipulation_pid_step3:main',
         ],
     },
 )

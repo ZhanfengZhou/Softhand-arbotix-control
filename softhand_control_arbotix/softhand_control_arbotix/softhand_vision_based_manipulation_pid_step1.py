@@ -71,8 +71,6 @@ class Softhand_Manipulation(Node):
         self.declare_parameter('bend_speed_array_preset') 
         self.declare_parameter('wave_speed_array_preset')
 
-        self.declare_parameter('marker_angle_desired') 
-
         self.declare_parameter('K_P') 
         self.declare_parameter('K_I') 
         self.declare_parameter('K_D') 
@@ -81,6 +79,7 @@ class Softhand_Manipulation(Node):
         self.marker_feedback_update_times = 0
         self.speed_preset = False
         self.PID_controller_ready = False
+        self.marker_angle_desired = 4
 
         self.motors_parameter_set()
 
@@ -166,7 +165,7 @@ class Softhand_Manipulation(Node):
 
                 last_time = current_time
 
-                if (PID_update_times % 100 == 0):
+                if (PID_update_times % 10 == 0):
                     self.get_logger().info(termcolor.colored(f'MotorSpeed Client: PID speed controller updating for the motors, speed: {self.wave_speed}, times: {PID_update_times}', 'blue'))
                 
                 PID_update_times = PID_update_times + 1
@@ -257,11 +256,11 @@ class Softhand_Manipulation(Node):
             self.marker_feedback_update_times = self.marker_feedback_update_times + 1
 
         
-        if (self.marker_feedback_update_times % 20 == 1):
-            self.get_logger().info(termcolor.colored(f'The marker feedback angle is {self.marker_angle_feedback}, and the desired marker angle is {self.marker_angle_desired}', 'yellow'))
-            self.get_logger().info(termcolor.colored(f'The marker angle error is {self.marker_angle_error}', 'yellow')) 
+            if (self.marker_feedback_update_times % 10 == 1):
+                self.get_logger().info(termcolor.colored(f'The marker feedback angle is {self.marker_angle_feedback}, and the desired marker angle is {self.marker_angle_desired}', 'yellow'))
+                self.get_logger().info(termcolor.colored(f'The marker angle error is {self.marker_angle_error}, update times: {self.marker_feedback_update_times}', 'yellow')) 
 
-    
+
     def marker_angle_filter(self, marker_angle_list):
 
         angle_sum = sum(marker_angle_list)
@@ -272,7 +271,6 @@ class Softhand_Manipulation(Node):
     def motors_parameter_set(self):
     
         # get and process parameter:
-        self.marker_angle_desired = self.get_parameter('marker_angle_desired').value
         
         self.bend_angle_array_point0 = self.get_parameter('bend_angle_array_point0').value
         self.bend_angle_array_limit = self.get_parameter('bend_angle_array_limit').value
