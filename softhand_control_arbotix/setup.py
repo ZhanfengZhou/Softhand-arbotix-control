@@ -43,6 +43,7 @@ setup(
             'softhand_vision_based_manipulation_pid_step1 = softhand_control_arbotix.softhand_vision_based_manipulation_pid_step1:main',
             'softhand_vision_based_manipulation_pid_step2 = softhand_control_arbotix.softhand_vision_based_manipulation_pid_step2:main',
             'softhand_vision_based_manipulation_pid_step3 = softhand_control_arbotix.softhand_vision_based_manipulation_pid_step3:main',
+            'softhand_vision_based_interactive_grasp = softhand_control_arbotix.softhand_vision_based_interactive_grasp:main',
         ],
     },
 )

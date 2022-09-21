@@ -1,23 +1,29 @@
 /softhand_grasp_node:
    ros__parameters:
-      'grasp_time': 26
-      'release_time': 22
+      'grasp_time': 2
+      'release_time': 15
       
-      'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  #in degrees, range:[0, 300]
-      'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]
-      #'bend_angle_array_point1': [128.0, 111.0, 200.0, 105.0, 131.0]    # tennis ball
-      #'bend_angle_array_point1': [123.0, 106.0, 205.0, 100.0, 126.0]    # orange
-      #'bend_angle_array_point1': [128.0, 111.0, 200.0, 95.0, 100.0]    # pear
-      #'bend_angle_array_point1': [118.0, 101.0, 210.0, 95.0, 121.0]    # apple
-      #'bend_angle_array_point1': [148.0, 131.0, 180.0, 105.0, 131.0]    # small glass bottle
-      #'bend_angle_array_point1': [162.0, 151.0, 160.0, 115.0, 131.0]    # banana, tilt,false
-      #'bend_angle_array_point1': [128.0, 111.0, 200.0, 105.0, 131.0]    # peach
-      #'bend_angle_array_point1': [148.0, 131.0, 180.0, 105.0, 131.0]    # lemon
-      #'bend_angle_array_point1': [158.0, 136.0, 175.0, 105.0, 131.0]    # plum
-      #'bend_angle_array_point1': [165.0, 151.0, 162.0, 105.0, 131.0]     # chips can
-      #'bend_angle_array_point1': [195.0, 190.0, 138.0, 155.0, 141.0]     #Jello chocolate, strawberry
-      'bend_angle_array_point1': [195.0, 190.0, 138.0, 155.0, 141.0]     #both Jello fail
-      'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]    
+      # 'bend_angle_array_point0': [58.0, 41.0, 270.0, 35.0, 41.0]  #in degrees, range:[0, 300]
+      # 'wave_angle_array_point0': [0.0, 4.35, 2.8, 26.0, 1.0]   # range:[-150, 150]
+      # #'bend_angle_array_point1': [128.0, 111.0, 200.0, 105.0, 131.0]    # tennis ball
+      # #'bend_angle_array_point1': [123.0, 106.0, 205.0, 100.0, 126.0]    # orange
+      # #'bend_angle_array_point1': [128.0, 111.0, 200.0, 95.0, 100.0]    # pear
+      # #'bend_angle_array_point1': [118.0, 101.0, 210.0, 95.0, 121.0]    # apple
+      # #'bend_angle_array_point1': [148.0, 131.0, 180.0, 105.0, 131.0]    # small glass bottle
+      # #'bend_angle_array_point1': [162.0, 151.0, 160.0, 115.0, 131.0]    # banana, tilt,false
+      # #'bend_angle_array_point1': [128.0, 111.0, 200.0, 105.0, 131.0]    # peach
+      # #'bend_angle_array_point1': [148.0, 131.0, 180.0, 105.0, 131.0]    # lemon
+      # #'bend_angle_array_point1': [158.0, 136.0, 175.0, 105.0, 131.0]    # plum
+      # #'bend_angle_array_point1': [165.0, 151.0, 162.0, 105.0, 131.0]     # chips can
+      # #'bend_angle_array_point1': [195.0, 190.0, 138.0, 155.0, 141.0]     #Jello chocolate, strawberry
+      # 'bend_angle_array_point1': [195.0, 190.0, 138.0, 155.0, 141.0]     #both Jello fail
+      # 'wave_angle_array_point1': [0.0, 4.35, 2.8, 26.0, 1.0]   
+
+      'bend_angle_array_point0': [0.0, 41.0, 270.0, 35.0, 0.0]  #in degrees, range:[0, 300]
+      'wave_angle_array_point0': [40.0, 4.35, 2.8, 32.0, 10.0]   # range:[-150, 150]
+      'bend_angle_array_point1': [130.0, 160.0, 165.0, 150.0, 140.0]    
+      #'bend_angle_array_point1': [175.0, 160.0, 165.0, 150.0, 150.0]    
+      'wave_angle_array_point1': [40.0, 4.35, 2.8, 32.0, 10.0]     
 
 /softhand_grasp_lateral_node:
    ros__parameters:
@@ -50,5 +56,5 @@
       
 /softhand_setspeed_clientnode:
    ros__parameters:
-      'bend_speed_array': [32.0, 32.0, 32.0, 32.0, 32.0]  #in degrees/sec, range:[0-684]
+      'bend_speed_array': [22.0, 22.0, 22.0, 22.0, 22.0]  #in degrees/sec, range:[0-684]
       'wave_speed_array': [15.0, 15.0, 15.0, 15.0, 15.0]  
